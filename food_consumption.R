@@ -1,8 +1,8 @@
 #**************************************************************************
 ##TidyTuesday
-#Purpose: Data Exploration using 
+#Purpose: Data Exploration using Tidyverse Package
 #Author: LNN
-#Date: 19/2/2020
+#Date: 23/2/2020
 #************************************************************************
 
 rm(list = ls())
@@ -55,8 +55,6 @@ co2_em <- food_consumption %>%
   group_by(country, food_category) %>%
   summarise(meanval = round(mean(co2_emmission),2))
  co2_em
-
-par(mfrow = c(2,2))
 
 #kenya
 co2_em_ke  = co2_em[co2_em$country == "Kenya",]
