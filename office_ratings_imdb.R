@@ -32,6 +32,10 @@ sapply(office_ratings, function(x) sum(is.na(x)))
 
 #theme settings
 theme_set(theme_fivethirtyeight())
+       
+#importing windows fonts into R
+font_import()
+loadfonts(device = "win")
 
 plottheme <- function(){
   theme(
