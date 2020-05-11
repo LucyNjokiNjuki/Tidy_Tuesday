@@ -1,7 +1,7 @@
 ---
 title: 'Tidy tuesday: Animals Data'
 author: "Lucy Njoki"
-date: "5/8/2020"
+date: "5/11/2020"
 output: html_document
 ---
 
@@ -85,12 +85,11 @@ local({
 })
 
 ```
-
 __No significant relationship between species of a villager and their personality.__
 
 #Sentimental Analysis
 
-How negative or positive a comment is.; Prediction
+How negative or positive a comment is?
 ```{r}
 user_reviews <- readr::read_tsv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-05-05/user_reviews.tsv')
 
@@ -101,7 +100,6 @@ head(user_reviews)
 ```
 ```{r exploring the user-reviews data}
 glimpse(user_reviews)
-
 
 grades <- user_reviews%>%
   group_by(grade) %>%
@@ -143,4 +141,3 @@ words_per_review%>%
   ggplot(aes(total_words))+
   geom_histogram(fill = "midnightblue", alpha = 0.8)
 ```
-
