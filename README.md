@@ -10,3 +10,7 @@
 **To install the packages**
 
 install.packages(c("tidyverse", "ggthemes", "extrafont", "fcuk")) 
+
+## Sentimental Analysis
+
+library(tidytexts) #check distribution of the words
