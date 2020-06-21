@@ -5,8 +5,11 @@ Data obtained from [https://en.wikipedia.org/wiki/List_of_African-American_inven
 ## Packages used
 
 library(tidyverse)
+
 library(extrafont)
+
 library(fcuk) # for clumpsy fingers:)
+
 library(ggthemes)
 
 ## To install the packages
