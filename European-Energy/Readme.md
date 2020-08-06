@@ -15,4 +15,4 @@ Data source: [https://ec.europa.eu/eurostat/statistics-explained/index.php/Elect
   
   library(gifski)
   
-  library(RColorBrewer)```
+  library(RColorBrewer)
