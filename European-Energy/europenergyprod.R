@@ -30,7 +30,7 @@ energy_types %>%
 new_data <- energy_types %>%
   gather("year", "EnergyProduction", "2016", "2017", "2018")
 
-#checcking missing values
+#checking missing values
 sapply(new_data, function(x)sum(is.na(x)))
 
 new_data$year <- as.integer(new_data$year)
@@ -41,7 +41,7 @@ new_data2 <- new_data %>%
 
 sapply(new_data2, function(x)sum(is.na(x)))
 
-#reorder coutry name
+#reorder country name
 new_data3 <- new_data2 %>%
   mutate(country_name = fct_reorder(country_name, desc(EnergyProduction), .fun='sum'))
 
