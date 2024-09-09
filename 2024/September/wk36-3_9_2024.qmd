@@ -1,0 +1,176 @@
+---
+title: "Wk 36: Stack Overflow Annual Developer Survey 2024"
+subtitle: "TidyTuesday Contribution"
+author: "Njoki Njuki"
+date: "2024-09-03"
+date-modified: today
+format: html
+toc: true
+code-fold: show
+editor: visual
+---
+
+## Load Packages
+
+```{r}
+
+pacman::p_load(
+  tidyverse, # for data transformation and plots
+  ggthemr,   # for theme
+  ggtext     # for texts
+  
+)
+```
+
+## Data
+
+This week's dataset comes from the 2024 Stack Overflow Annual Developer Survey, conducted in May 2024. The survey received responses from over 65,000 developers, covering seven main areas:
+
+-   Basic Information
+-   Education, Work, and Career
+-   Tech and Tech Culture
+-   Stack Overflow Community
+-   Artificial Intelligence (AI)
+-   Professional Developer Series (separate from the main survey)
+-   Thoughts on the Survey
+
+
+The dataset for analysis includes only single-response questions from the main sections, with categorical responses coded as integers. Labels for these codes can be found in the crosswalk file. Key points to explore include developer demographics, their engagement with Stack Overflow, and their views on AI.
+
+```{r}
+#| label: import_data
+#| message: false
+#| warning: false
+
+qname_levels_single_response_crosswalk <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2024/2024-09-03/qname_levels_single_response_crosswalk.csv')
+stackoverflow_survey_questions <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2024/2024-09-03/stackoverflow_survey_questions.csv')
+stackoverflow_survey_single_response <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2024/2024-09-03/stackoverflow_survey_single_response.csv')
+
+```
+
+## Data preparation
+
+```{r}
+#| label: data_prep1
+#| message: false
+#| warning: false
+
+# Ensure qname_levels_single_response_crosswalk has the proper columns and data
+# Filter only for rows where qname is 'dev_type' and create a mapping
+dev_type_mapping <- qname_levels_single_response_crosswalk %>%
+  filter(qname == "dev_type") %>%
+  select(level, label) |> 
+  mutate(level = as.character(level))
+
+# Rename dev_type levels in the original dataset using the mapping
+stackoverflow_survey_single_response.1 <- stackoverflow_survey_single_response %>%
+  # Convert dev_type to character to match the type of the 'label' column
+  mutate(dev_type = as.character(dev_type)) %>%
+  left_join(dev_type_mapping, by = c("dev_type" = "level")) %>%
+  mutate(dev_type = coalesce(label, dev_type)) %>%  # Replace levels with labels
+  select(-label)  # Drop the label column after replacement
+
+# Select top 20 developer type
+dev_data <- stackoverflow_survey_single_response.1 %>%
+  group_by(dev_type) %>%
+  summarise(count = n()) %>%
+  arrange(desc(count)) %>%
+  na.omit() %>%
+  slice(1:20) %>%
+  ungroup()
+```
+
+
+
+```{r}
+#| label: data_prep2
+#| message: false
+#| warning: false
+
+# Filter the original data for only the top 20 dev_types
+top_20_data <- stackoverflow_survey_single_response.1 %>%
+  filter(dev_type %in% dev_data$dev_type) %>%
+  mutate(ed_level = case_when(
+    ed_level == 1 ~ "Associate degree",
+    ed_level == 2 ~ "Bachelor’s degree",
+    ed_level == 3 ~ "Master’s degree",
+    ed_level == 4 ~ "Primary/elementary school",
+    ed_level == 5 ~ "Professional degree",
+    ed_level == 6 ~ "Secondary school",
+    ed_level == 7 ~ "Some college/uni study w/o earning a degree",
+    ed_level == 8 ~ "Something else"
+  )) 
+
+# Group by dev_type and ed_level, then count how many in each group
+ed_level_distribution <- top_20_data |> 
+  group_by(dev_type, ed_level) |> 
+  summarise(count = n()) |> 
+  ungroup()
+```
+
+## Plot 
+
+```{r}
+#| label: create_plot
+#| message: false
+#| warning: false
+#| fig-width: 8.5
+#| fig-height: 7
+
+# Setting the theme
+ggthemr("pale")
+
+# Create the plot
+(p <- ggplot(ed_level_distribution) +     
+  
+  # Create the bar chart
+  geom_bar(stat = "identity",
+           aes(x = reorder(dev_type, count, desc = TRUE), 
+               y = count,
+               fill = ed_level)) +
+  
+  # Add title, x and y axis labels, and the legend label
+  labs(
+    title = "Education Level Distribution by <span style='color:maroon;'>Top 20 Developer Types</span>",
+    subtitle = "2024 Stack Overflow Annual Developer Survey",
+    x = "Developer Type",
+    y = "Frequency",
+    fill = "Education Level",
+    caption = "#TidyTuesday Wk 36: Stack Overflow Annual Developer Survey 2024; @njokinjuki"  # Add caption
+  ) +
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 20)) +
+  # Center the title, place legend at the bottom, and format the title with color
+  theme_minimal() +
+  theme(
+    plot.title = element_markdown(hjust = 0, size = 12),  
+    plot.subtitle = element_markdown(size = 10),
+    legend.position = "bottom",                  # Move legend to the bottom
+    plot.caption = element_text(hjust = 0.5)     # Center the caption
+  ) +
+   # Flip coordinates to make it horizontal
+  coord_flip() +
+    guides(fill = guide_legend(nrow = 2, byrow = TRUE, label.hjust = 0, 
+                               label.position = "bottom")) +
+  # Use the Rick and Morty color palette
+  ggsci::scale_fill_futurama(name = "Education Level")+
+    
+    annotate("text",
+         x = 4, y = max(ed_level_distribution$count) * 0.99,  # Position text near the top of the plot
+         label = expression(italic("Full Stack Developers responded the most, \nwith the majority holding a Bachelor's degree") * " 💻"),  # Italic and computer icon
+         size = 3.5, hjust = 0, color = "#525252")
+
+
+)
+
+# save the plot
+# ggsave(plot = p, file = here::here("September","Plots", "2024_Stack_Overflow_Annual_Developer_Survey.png"), width = 9, height = 8.5, bg = "white")
+
+# turn off the theme effect!
+ggthemr_reset()
+```
+
+## Pun for the week!
+
+Why don't statisticians argue with R?
+
+Because it always **make a good point!** `r emoji::emoji("smile")` `r emoji::emoji("bar_chart")`
