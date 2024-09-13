@@ -1,0 +1,193 @@
+---
+title: "Wk 37: Economic Diversity and Student Outcomes"
+subtitle: "TidyTuesday Contribution"
+author: "Njoki Njuki"
+date: "2024-09-09"
+date-modified: today
+format: html
+toc: true
+code-fold: show
+editor: visual
+---
+
+## Load Packages
+
+```{r}
+#| label: load_package
+#| message: false
+#| warning: false
+
+pacman::p_load(
+  tidyverse, # for data transformation and plots
+  ggthemes   # for theme
+  )
+```
+
+## Data
+
+This week's dataset comes from Opportunity Insights and was featured in an article with interactive visualizations by The New York Times' Upshot. The data, based on millions of anonymous tax records, reveals that some colleges are more economically segregated than previously thought, while others show potential for income mobility.
+
+```{r}
+#| label: import_data
+#| message: false
+#| warning: false
+
+# Option 1: tidytuesdayR package 
+## install.packages("tidytuesdayR")
+
+tuesdata <- tidytuesdayR::tt_load('2024-09-10')
+
+college_admissions <- tuesdata$college_admissions
+```
+
+Review the data:
+
+```{r}
+#| label: review_data
+#| message: false
+#| warning: false
+
+skimr::skim(college_admissions)
+```
+
+## Plots
+
+I am interested in the observing the the variations in attendance rate by the university tier.
+
+### Plot 1 (Boxplot with Jitter):
+
+```{r}
+#| label: plot1
+#| message: false
+#| warning: false
+#| fig-width: 8.5
+#| fig-height: 7 
+ 
+(plot1 <- college_admissions %>%
+  ggplot(aes(x = tier, y = attend, fill = tier)) +
+  geom_boxplot(
+    alpha = 0.7, 
+    outlier.color = "red", 
+    color = "#4F4F4F",  
+    lwd = 0.6  
+  ) +
+  geom_jitter(
+    alpha = 0.4, 
+    color = "darkgrey", 
+    width = 0.1, 
+    size = 1.2  
+  ) +
+  stat_summary(
+    fun = mean, 
+    geom = "point", 
+    shape = 21, 
+    size = 3, 
+    color = "black", 
+    fill = "yellow"
+  ) +
+  coord_flip() +
+  labs(
+    title = "Comparison of Attendance Rate by University Tier",
+    subtitle = "Variation in attendance rates across different university tiers",
+    x = "University Tier",
+    y = "Attendance Rate",
+    fill = "Tier",
+    caption = "#TidyTuesday Wk 37: Economic Diversity and Student Outcomes\n Data: Opportunity Insights via NY Times\n @njokinjuki"
+  ) +
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 20)) +
+  scale_fill_brewer(palette = "Set2") +  
+  theme_minimal() +  
+  theme(
+    plot.title = element_text(size = 14, face = "bold", color = "#2C3E50"),
+    plot.subtitle = element_text(size = 11, face = "italic", color = "#34495E"),
+    plot.caption = element_text(size = 9, color = "#7F8C8D"),
+    axis.title.x = element_text(size = 12, color = "#2C3E50"),
+    axis.title.y = element_text(size = 12, color = "#2C3E50"),
+    axis.text = element_text(size = 10, color = "#2C3E50"),
+    panel.grid.major = element_line(color = "grey80"),  
+    panel.grid.minor = element_blank(),  
+    legend.position = "none",
+    plot.title.position = "plot"
+  ))
+
+# save the plot
+# ggsave(plot = plot1, file = here::here("September","Plots", "Wk37-Economic_Diversity_and_Student_Outcomes_1.png"), width = 6, height = 5.5, bg = "white")
+```
+
+From the plot 1, we see the following:
+- Most tiers have relatively small attendance rates, with Ivy Plus schools having the widest distribution of attendance rates.
+- The Ivy Plus category also shows a relatively higher mean and median attendance rate compared to other tiers.
+- Outliers (shown in red) indicate some schools with much higher attendance rates.
+
+### Plot 2 (Violin + Boxplot):
+
+```{r}
+#| label: plot2
+#| message: false
+#| warning: false
+#| 
+(plot2 <- college_admissions %>%
+  ggplot(aes(x = tier, y = attend, fill = tier)) +
+  geom_violin(alpha = 0.3, color = NA) +  
+  geom_boxplot(
+    alpha = 0.7, 
+    outlier.color = "red", 
+    width = 0.2, 
+    color = "black",  
+    lwd = 0.6  
+  ) +
+  stat_summary(
+    fun = mean, 
+    geom = "point", 
+    shape = 21, 
+    size = 2, 
+    color = "black", 
+    fill = "yellow"
+  ) +  
+  coord_flip() +
+  labs(
+    title = "Comparison of Attendance Rate by University Tier",
+    subtitle = "Variation in attendance rates across different university tiers",
+    x = "University Tier",
+    y = "Attendance Rate",
+    fill = "Tier",
+    caption = "#TidyTuesday Wk 37: Economic Diversity and Student Outcomes\n Data: Opportunity Insights via NY Times\n @njokinjuki"
+  ) +
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 20)) +
+  scale_fill_brewer(palette = "Set3") +  
+  theme_minimal(base_size = 10) +  
+  theme(
+    plot.title = element_text(size = 12, face = "bold", color = "#104E8B"),
+    plot.subtitle = element_text(size = 10, face = "italic", color = "#34495E"),
+    plot.caption = element_text(size = 9, color = "#7F8C8D"),
+    axis.title.x = element_text(size = 12, color = "#2C3E50"),
+    axis.title.y = element_text(size = 12, color = "#2C3E50"),
+    axis.text = element_text(size = 10, color = "#2C3E50"),
+    panel.grid.major = element_line(color = "grey80"),  
+    panel.grid.minor = element_blank(),  
+    legend.position = "none",
+    plot.title.position = "plot"
+  ))
+
+# save the plot
+# ggsave(plot = plot2, file = here::here("September","Plots", "Wk37-Economic_Diversity_and_Student_Outcomes_2.png"), width = 6, height = 5.5, bg = "white")
+```
+
+Interpretation of the plot:
+
+- The violin plots provide a more detailed look at the distribution of attendance rates within each tier. 
+- For example, the Ivy Plus group shows a high concentration of schools with low attendance rates but also a long tail of schools with higher rates, as indicated by the extended part of the violin.
+
+### What the plots tell us:
+
+- Ivy Plus schools have the widest spread of attendance rates, with both high and low values.
+- Highly selective private and Other elite schools show some variation but generally have lower attendance rates compared to Ivy Plus.
+- Outliers are more prominent in some tiers (e.g., Highly selective private) where some schools stand out with much higher attendance rates than the majority.
+- The distribution of attendance rates for Selective public and Selective private schools is more tightly packed, meaning schools within these categories tend to have similar attendance rates.
+
+> In summary, Plot 1 focuses more on the quartiles and individual data points, while Plot 2 provides a richer visualization of distribution patterns through violin plots. Both plots tell a similar story of variation across university tiers, with Ivy Plus having a broader range of attendance rates compared to other categories.
+
+## Pun for the week!
+
+"Why did the statistician bring a ladder to the R session?
+Because they heard the data had high variance and wanted to scale the heights!" `r emoji::emoji("smile")` `r emoji::emoji("bar_chart")` `r emoji::emoji("stars")`
