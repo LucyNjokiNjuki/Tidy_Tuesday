@@ -1,0 +1,191 @@
+---
+title: "Wk 40: Chess Game Dataset (Lichess)"
+subtitle: "TidyTuesday Contribution"
+author: "Njoki Njuki"
+date: "2024-09-25"
+date-modified: today
+format: html
+toc: true
+code-fold: show
+editor: visual
+---
+
+## Load Packages
+
+```{r}
+#| label: load_package
+#| message: false
+#| warning: false
+
+pacman::p_load(
+  tidyverse, # for data transformation and plots
+  viridis,   # for colours
+  scales
+  )
+```
+
+## Data
+
+Use the data to explore -
+
+- What the common opening moves? By ranks?
+- How many turns does a game last based on player ranking?
+- What move patterns explain the game outcome?
+
+```{r}
+#| label: import_data
+#| message: false
+#| warning: false
+
+
+# Option 1: tidytuesdayR package 
+## install.packages("tidytuesdayR")
+
+tuesdata <- tidytuesdayR::tt_load(2024, week = 40)
+
+chess <- tuesdata$chess
+```
+
+## Plots
+
+### Distribution of Player Ratings
+
+```{r}
+#| label: plot1
+#| message: false
+#| warning: false
+#| fig-width: 6.5
+#| fig-height: 5 
+
+# Create a combined dataframe with player ratings and colours for each player type
+chess_ratings <- chess %>%
+  select(white_rating, black_rating) %>%
+  pivot_longer(cols = c(white_rating, black_rating), names_to = "player", values_to = "rating") %>%
+  mutate(player = ifelse(player == "white_rating", "White", "Black"))
+
+(plot1 <- ggplot(chess_ratings, aes(x = rating, fill = player)) +
+  geom_density(data = filter(chess_ratings, player == "White"), 
+               aes(y = ..density..), color = NA, alpha = 0.8) +
+  geom_density(data = filter(chess_ratings, player == "Black"), 
+               aes(y = -..density..), color = NA, alpha = 0.8) +
+  scale_y_continuous(labels = abs) +
+  scale_fill_viridis_d(option = "C", begin = 0.2, end = 0.8) +  
+  labs(title = "♟ Comparative Analysis of Chess Player Ratings", 
+       subtitle = "An exploration of rating distributions for White and Black players across games",
+       x = "Player Rating", y = "Density",
+       fill = "Player Role",
+       caption = "#TidyTuesday Wk 40: ♔♚Chesse Game Dataset (Lichess)\n Data Source: bit.ly/4ejLyN9 \n@njokinjuki") + 
+  theme_minimal(base_size = 10) +
+  theme(
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_blank(),
+    panel.background = element_rect(fill = "grey92"), 
+    plot.background = element_rect(fill = "grey98"), 
+    plot.title = element_text(size = 14, face = "bold", hjust = 0.5, color = "#404040"),
+    plot.subtitle = element_text(size = 11, hjust = 0.5, color = "#404040"),
+    axis.text = element_text(size = 8, color = "#404040"),
+    axis.title = element_text(size = 10, face = "bold", color = "#404040"),
+    legend.position = "top", 
+    legend.background = element_rect(fill = "grey98"),
+    legend.text = element_text(size = 8, color = "#404040"),
+    legend.title = element_text(size = 10, face = "bold", color = "#404040")
+  ))
+
+# ggsave(plot = plot1, file = here::here("September","Plots", "Wk40-Chesse_Game_Dataset_1.png"), width = 6, height = 5.5, bg = "white")
+```
+
+Here are the key insights from the plot:
+
+1. **Distribution of Player Ratings**:
+   - The x-axis represents the player ratings, ranging from approximately 1000 to 2500.
+   - The y-axis represents the density, indicating how frequently players fall within certain rating ranges.
+
+2. **Comparison Between White and Black Players**:
+   - The orange density shape represents the ratings of White players.
+   - The purple density shape represents the ratings of Black players.
+   - Both distributions overlap significantly, suggesting that the overall rating distributions for White and Black players are quite similar.
+
+3. **Peak Density**:
+   - Both distributions have their peaks around the same rating range, indicating that the most common ratings for both White and Black players are similar.
+   - The peak density for both White and Black players is just above 0.001, showing that there is a high concentration of players within a specific rating range.
+
+4. **Spread of Ratings**:
+   - The density shapes show that both White and Black players have a wide spread of ratings, ranging from around 1000 to 2400.
+   - The tails of the distributions indicate that there are fewer players at the extreme ends of the rating spectrum.
+
+Overall, this plot provides a visual comparison of the rating distributions for White and Black players, highlighting that their ratings are similarly distributed across the games. This can be useful for understanding the performance levels and rating trends among players using different colors in chess.
+
+
+### Average Player Rating vs. Number of Turns
+
+
+```{r}
+#| label: plot2
+#| message: false
+#| warning: false
+#| fig-width: 7.5
+#| fig-height: 6.8
+
+
+# calculate the average rating for each game
+chess <- chess %>%
+  mutate(avg_rating = (white_rating + black_rating) / 2)
+
+# lets custom color palette for game outcomes
+outcome_colors <- c("draw" = "#2c7bb6", "mate" = "#d73027", "resign" = "#fdae61", "outoftime" = "#91bfdb")
+
+# Enhanced scatter plot: Average rating vs. Number of turns, colored by game outcome
+(plot2 <- ggplot(chess, aes(x = avg_rating, y = turns, color = victory_status)) +
+  geom_point(alpha = 0.7, size = 2) +
+  geom_smooth(method = "lm", se = FALSE, linetype = "solid", size = 1.2) +
+  scale_color_manual(values = outcome_colors, label = c("Draw", "Mate", "Resign", "OutofTime")) +
+  scale_x_continuous(labels = comma) +
+  labs(title = "Impact of Player Ratings on Game Duration",
+       subtitle = "♟ Exploring the relationship between average player rating and game length across different outcomes",
+       x = "Average Player Rating",
+       y = "Number of Turns",
+       color = "Game Outcome",
+       caption = "#TidyTuesday Wk 40: ♔♚Chesse Game Dataset (Lichess)\n Data Source: bit.ly/4ejLyN9 \n@njokinjuki") +
+  theme_minimal(base_size = 10) +
+  theme(
+    panel.grid.major = element_line(color = "grey80", size = 0.5),
+    panel.grid.minor = element_blank(),
+    plot.background = element_rect(fill = "#f7f7f7", color = NA), # Light background
+    panel.background = element_rect(fill = "#f7f7f7", color = NA),
+    plot.title = element_text(size = 14, face = "bold", hjust = 0.5, color = "#404040"),
+    plot.subtitle = element_text(size = 9.5, hjust = 0.5, color = "#606060"),
+    axis.title = element_text(size = 12, face = "bold", color = "#404040"),
+    axis.text = element_text(size = 10, color = "#404040"),
+    legend.position = "top",
+    legend.background = element_rect(fill = "#f7f7f7"),
+    legend.key = element_blank(),
+    legend.text = element_text(size = 8, color = "#404040"),
+    legend.title = element_text(size = 10, face = "bold", color = "#404040")
+  ))
+
+# ggsave(plot = plot2, file = here::here("September","Plots", "Wk40-Chesse_Game_Dataset_2.png"), width = 6, height = 5.5, bg = "white")
+```
+
+
+Here are the key takeaways:
+
+1. **Average Player Rating vs. Number of Turns**:
+   - The x-axis represents the average player rating, ranging from approximately 800 to 2500.
+   - The y-axis represents the number of turns in a game, ranging from 0 to over 300.
+
+2. **Game Outcomes**:
+   - The plot uses different colors to represent various game outcomes: `r "#2c7bb6"` for draws, `r "#d73027"` for mates, `r "#fdae61"` for resignations, and `r "#91bfdb"` for out of time.
+   - Each dot represents a single game, showing the number of turns and the average player rating for that game.
+
+3. **Trends**:
+   - As the average player rating increases, there is a general trend of games lasting longer (more turns). This suggests that higher-rated players tend to play longer games.
+   - The density of points indicates that most games end with resignation or mate rather than draws or out of time outcomes.
+
+4. **Outcome-Specific Observations**:
+   - **Draws**: Games that end in a draw tend to have a higher number of turns, especially at higher player ratings.
+   - **Mates**: Games ending in mate also show an increase in the number of turns with higher player ratings, but not as pronounced as draws.
+   - **Resignations**: Resignation games are more evenly spread across the rating spectrum but tend to cluster around fewer turns compared to draws and mates.
+   - **Out of Time**: These are less frequent and scattered, indicating they are not as common as the other outcomes.
+
+Overall, the plot suggests that higher-rated players engage in longer games, and the outcome of the game (draw, mate, resignation) influences the number of turns. This information can be useful for understanding how player skill level affects game dynamics and outcomes in chess.
+
