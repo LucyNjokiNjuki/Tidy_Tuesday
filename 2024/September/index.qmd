@@ -91,7 +91,7 @@ chess_ratings <- chess %>%
     legend.title = element_text(size = 10, face = "bold", color = "#404040")
   ))
 
-# ggsave(plot = plot1, file = here::here("September","Plots", "Wk40-Chesse_Game_Dataset_1.png"), width = 6, height = 5.5, bg = "white")
+# ggsave(plot = plot1, file = here::here("September","Plots", "Wk40-Chesse_Game_Dataset_1.png"), bg = "white")
 ```
 
 Here are the key insights from the plot:
@@ -163,7 +163,7 @@ outcome_colors <- c("draw" = "#2c7bb6", "mate" = "#d73027", "resign" = "#fdae61"
     legend.title = element_text(size = 10, face = "bold", color = "#404040")
   ))
 
-# ggsave(plot = plot2, file = here::here("September","Plots", "Wk40-Chesse_Game_Dataset_2.png"), width = 6, height = 5.5, bg = "white")
+# ggsave(plot = plot2, file = here::here("September","Plots", "Wk40-Chesse_Game_Dataset_2.png"), bg = "white")
 ```
 
 
