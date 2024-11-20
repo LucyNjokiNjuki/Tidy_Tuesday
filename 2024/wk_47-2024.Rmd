@@ -1,0 +1,124 @@
+---
+title: "Bob's Burgers Episodes"
+date: "`r Sys.Date()`"
+output:
+  rmdformats::downcute:
+    self_contained: true
+    default_style: "light"
+    downcute_theme: "default"
+---
+
+
+```{r setup, include=FALSE}
+## Global options
+knitr::opts_chunk$set(cache = TRUE, warning = FALSE, message = FALSE)
+```
+
+## Load R Packages used
+
+```{r}
+pacman::p_load(
+  ggplot2,
+  reshape2,
+  png,
+  grid,
+  viridis,
+  here,
+  tidylog
+)
+```
+
+## The Data
+
+```{r}
+# Option 1: tidytuesdayR package 
+## install.packages("tidytuesdayR")
+tuesdata <- tidytuesdayR::tt_load(2024, week = 47)
+
+episode_metrics <- tuesdata$episode_metrics
+
+```
+
+
+
+## Finding Patterns
+
+```{r eval=FALSE}
+# Prepare the data
+heatmap_data <- dcast(episode_metrics, episode ~ season, value.var = "dialogue_density")
+
+# Melt data for ggplot
+heatmap_long <- melt(heatmap_data, id.vars = "episode", variable.name = "season", value.name = "dialogue_density")
+```
+
+
+
+```{r fig.width=8, fig.height=6}
+# Load and desaturate the Bob's Burgers image
+img <- readPNG("bobs_burger_image.png")  # Replace with your image path
+background_image <- rasterGrob(img, width = unit(1, "npc"), height = unit(1, "npc"), just = "center")
+
+# Create the heatmap
+(plot <- ggplot(data = heatmap_long, aes(x = as.factor(season), y = as.factor(episode), fill = dialogue_density)) +
+  annotation_custom(background_image, xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf) +  # Add image as background
+  geom_tile(color = "white", size = 0.3, alpha = 0.9) +  # Add tile borders and set transparency
+  scale_fill_viridis(
+    option = "viridis", 
+    direction = -1, 
+    na.value = "grey50", 
+    name = "Dialogue Density\n(Grey = Missing Episodes)",
+    guide = guide_colorbar(
+      title.position = "top",
+      title.hjust = 0.5,
+      barwidth = 10,
+      barheight = 1
+    )
+  ) +
+  labs(
+    title = "Dialogue Density by Episode and Season",
+    x = "Season",
+    y = "Episode",
+    caption = "#TidyTuesday Wk 47: Bob's Burgers Episodes\n @njokinjuki"
+  ) +
+  theme_minimal(base_family = "Arial") +  # Use a clean font
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 12, face = "bold", color = "black"),
+    axis.text = element_text(size = 10, color = "black"),
+    axis.title = element_text(size = 11, color = "black"),
+    legend.title = element_text(size = 10, face = "bold"),
+    legend.text = element_text(size = 8),
+    legend.position = "bottom",  # Place the legend at the bottom
+    panel.background = element_rect(fill = "transparent", color = NA),  # Transparent background
+    plot.background = element_rect(fill = "white", color = NA),         # White outer border
+    axis.ticks = element_blank(),  # Clean axes
+    panel.grid = element_blank()   # Remove default gridlines
+  ))
+```
+
+```{r}
+# save the plot
+ggsave(plot = plot, file = here::here("Plots", "Wk47-Bob_Burgers_Episodes.png"), width = 6, height = 6, bg = "white")
+```
+
+
+## Interpretion of the plot
+
+The heatmap shows dialogue density by episode (y-axis) and season (x-axis). 
+
+- High Dialogue Density (Purple): Episodes or seasons with darker purple shades have higher dialogue density. This means characters talk more or the episodes have more spoken content.
+
+- Low Dialogue Density (Yellow Shades): Episodes or seasons with lighter shades (yellow) have less dialogue density, possibly indicating episodes with more action, visual gags, or silence.
+
+Trends Across Seasons:
+
+- If earlier seasons (left) have consistent red patterns, the show may have started with a strong focus on dialogue-heavy humor.
+- Variations or patterns in specific seasons (e.g., alternating colors) may indicate stylistic changes in how dialogue is used.
+
+Episode-Specific Insights:
+
+- Episodes with higher or lower densities might correlate with key moments in the show, such as plot-heavy episodes, musical numbers, or experimental episodes.
+
+
+
+
+
