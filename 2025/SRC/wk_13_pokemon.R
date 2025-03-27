@@ -66,6 +66,9 @@ top_fastest <- pokemon_df |>
                               Ninjask = "ninjask",
                               Swellow = "swellow",
                               Talonflame = "talonflame"))
+# Add a custom Pokémon font
+showtext_auto()
+font_add_google("Press Start 2P", "pokemon_font")
 
 # Pokémon-themed colors
 pokemon_colors <- c("electric" = "#FFD700", "fire" = "#FF4500", 
@@ -88,8 +91,8 @@ pokemon_colors <- c("electric" = "#FFD700", "fire" = "#FF4500",
   theme_minimal(base_family = "pokemon_font") +  # Custom Pokémon font
   theme(
     text = element_text(color = "white"),
-    plot.title = element_markdown(size = 18, face = "bold", hjust = 0.5, color = "#FFD700"),  # Glowing title
-    plot.subtitle = element_markdown(size = 16, hjust = 0.5),
+    plot.title = element_markdown(size = 20, face = "bold", hjust = 0.5, color = "#FFD700"),  # Glowing title
+    plot.subtitle = element_markdown(size = 18, hjust = 0.5),
     axis.title.x = element_text(size = 12, face = "bold"),
     axis.text = element_text(size = 12, color = "white"),
     legend.position = "bottom",
