@@ -80,9 +80,9 @@ pokemon_colors <- c("electric" = "#FFD700", "fire" = "#FF4500",
 
 # Create Pokémon theme plot
 (wk13_plot <- ggplot(top_fastest, aes(x = reorder(pokemon, speed), y = speed, fill = type_1)) +
-  geom_col(show.legend = TRUE) +  # Slimmer bars
+  geom_col(show.legend = TRUE) +  
   geom_text(aes(label = speed), hjust = -0.3, color = "white", size = 7, fontface = "bold") +  
-  geom_image(aes(image = url_icon), size = 0.1, by = "width") +  # Bigger Pokémon images
+  geom_image(aes(image = url_icon), size = 0.1, by = "width") +  
   coord_flip() +  
   scale_fill_manual(values = pokemon_colors,
                     name = "Type",
