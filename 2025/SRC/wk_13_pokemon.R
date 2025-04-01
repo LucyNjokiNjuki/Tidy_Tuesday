@@ -2,7 +2,7 @@
 # TidyTuesday Contribution
 # Week 13: Pokemon
 # Author: Njoki Njuki
-# Date: 27.03.2025
+# Date: 01.04.2025
 # *************************************************************************** #
 
 # intro ----
@@ -45,7 +45,7 @@ summary(pokemon_df)
 # Check missing values
 colSums(is.na(pokemon_df))
 
-# Add full image URL prefix (assuming the missing "https:" part in 'url_icon')
+# Add full image URL prefix
 pokemon_df <- pokemon_df %>%
   mutate(url_icon = ifelse(is.na(url_icon), NA, paste0("https:", url_icon))) %>%
   drop_na(url_icon)  # Remove rows where url_icon is NA
@@ -66,9 +66,11 @@ top_fastest <- pokemon_df |>
                               Ninjask = "ninjask",
                               Swellow = "swellow",
                               Talonflame = "talonflame"))
+
 # Add a custom Pokémon font
 showtext_auto()
 font_add_google("Press Start 2P", "pokemon_font")
+
 
 # Pokémon-themed colors
 pokemon_colors <- c("electric" = "#FFD700", "fire" = "#FF4500", 
@@ -76,31 +78,33 @@ pokemon_colors <- c("electric" = "#FFD700", "fire" = "#FF4500",
                     "poison" = "#B23AEE", "normal" = "#A8A77A",
                     "bug" = "#A8B820")
 
-# Create the crazy Pokémon theme plot
+# Create Pokémon theme plot
 (wk13_plot <- ggplot(top_fastest, aes(x = reorder(pokemon, speed), y = speed, fill = type_1)) +
-  geom_col(show.legend = TRUE, width = 0.6) +  # Slimmer bars
-  geom_text(aes(label = speed), hjust = -0.3, color = "white", size = 7, fontface = "bold") +  # Speed labels
-  geom_image(aes(image = url_icon), size = 0.15, by = "width") +  # Bigger Pokémon images
-  coord_flip() +  # Horizontal bars
+  geom_col(show.legend = TRUE) +  # Slimmer bars
+  geom_text(aes(label = speed), hjust = -0.3, color = "white", size = 7, fontface = "bold") +  
+  geom_image(aes(image = url_icon), size = 0.1, by = "width") +  # Bigger Pokémon images
+  coord_flip() +  
   scale_fill_manual(values = pokemon_colors,
                     name = "Type",
-                    label = c("Bug", "Electric", "Fire", "Normal", "Poison", "Pyschic")) +  # Custom Pokémon colors
+                    label = c("Bug", "Electric", "Fire", "Normal", "Poison", "Pyschic")) + 
   labs(title = "**Fastest Pokémon Ever!**",
-       subtitle = "<span style='color:#FFD700;'>Can anyone outrun Swellow?</span>",
+       subtitle = "<span style='color:#FFD700;'>Can anyone outrun </span><span style='color:#A8A77A;'>Swellow?</span>",
        x = "Pokémon", y = "Speed") +
-  theme_minimal(base_family = "pokemon_font") +  # Custom Pokémon font
+  theme_minimal(base_family = "pokemon_font") +  
   theme(
     text = element_text(color = "white"),
-    plot.title = element_markdown(size = 20, face = "bold", hjust = 0.5, color = "#FFD700"),  # Glowing title
+    plot.title = element_markdown(size = 20, face = "bold", hjust = 0.5, color = "#FFD700"), 
     plot.subtitle = element_markdown(size = 18, hjust = 0.5),
     axis.title.x = element_text(size = 12, face = "bold"),
     axis.text = element_text(size = 12, color = "white"),
     legend.position = "bottom",
-    panel.background = element_rect(fill = "black", color = NA),  # Dark mode background
-    plot.background = element_rect(fill = "#222831", color = NA),  # Gradient dark background
+    panel.background = element_rect(fill = "black", color = NA),  
+    plot.background = element_rect(fill = "#222831", color = NA),
+    panel.grid.major = element_line(size = 0.2, color = "gray40"),
+    panel.grid.minor = element_blank(),
     axis.ticks = element_blank()
   ))
 
 # save the plot
 ggsave(plot = wk13_plot, 
-       file = here::here("Plots", "Wk13_Pokemon.png"), width = 15, height = 8.5, bg = "white")
+       file = here::here("Plots", "Wk13_Pokemon.png"), width = 5.5, height = 3.5)
