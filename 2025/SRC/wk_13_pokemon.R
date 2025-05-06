@@ -107,4 +107,5 @@ pokemon_colors <- c("electric" = "#FFD700", "fire" = "#FF4500",
 
 # save the plot
 ggsave(plot = wk13_plot, 
-       file = here::here("Plots", "Wk13_Pokemon.png"), width = 5.5, height = 3.5)
+       file = here::here("Plots", "Wk13_Pokemon.png"), 
+       width = 5.5, height = 3.5)
