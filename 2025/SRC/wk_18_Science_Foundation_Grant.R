@@ -11,12 +11,8 @@ pacman::p_load(
   rio,  # For importing data
   tidyverse, # For exploration and data manipulation
   tidylog, # for tidyverse functions documentation
-  ggimage, # For adding Pokémon images
-  showtext, # For cool custom fonts 
   ggtext, # For fancy text formatting
-  emo, # Emoji handling
-  treemapify,
-  networkD3
+  treemapify # For treemap plots
 )
 
 
@@ -71,7 +67,7 @@ domain_summary <- nsf_terminations %>%
     ) +
     theme_void(base_size = 10) +
     theme(
-      plot.title = element_markdown(hjust = 0.5, size = 18, face = "bold", margin = margin(b = 10)),
+      plot.title = element_markdown(hjust = 0.5, size = 18, face = "bold"),
       legend.position = "none",
       legend.title = element_text(face = "bold")
     )
@@ -79,5 +75,5 @@ domain_summary <- nsf_terminations %>%
 
 ggsave(plot = nsf_terminations_treemap, 
        here::here("Plots", "Wk18_nsf_terminations_treemap.png"), 
-       width = 14, height = 10, dpi = 300,
+       width = 14, height = 12, 
        bg = "white")
